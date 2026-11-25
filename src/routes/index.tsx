@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Activity, AlertTriangle, Crown, Cpu, Mic, Thermometer, Wifi, Battery, Hexagon } from "lucide-react";
+import { WifiOff, Activity, AlertTriangle, Crown, Cpu, Mic, Thermometer, Wifi, Battery, Hexagon } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-type Status = "queenright" | "queenless" | "uncertain";
+type Status = "queenright" | "queenless" | "offline";
 type Hive = { id: string; name: string; device: string; status: Status; confidence: number; freq: number; db: number; temp: number; battery: number; rssi: number; lastSeen: string };
 
 // Sample data — replace with live ESP32 readings
@@ -25,7 +25,7 @@ const HIVES: Hive[] = [
   { id: "H1", name: "Hive 01 · Acacia", device: "esp32-a1f3", status: "queenright", confidence: 94, freq: 248, db: 62, temp: 34.8, battery: 87, rssi: -58, lastSeen: "12s" },
   { id: "H2", name: "Hive 02 · Meadow", device: "esp32-b72c", status: "queenless", confidence: 88, freq: 312, db: 71, temp: 33.1, battery: 64, rssi: -67, lastSeen: "8s" },
   { id: "H3", name: "Hive 03 · Orchard", device: "esp32-c09e", status: "queenright", confidence: 91, freq: 236, db: 59, temp: 35.0, battery: 92, rssi: -52, lastSeen: "20s" },
-  { id: "H4", name: "Hive 04 · Ridge", device: "esp32-d4a8", status: "uncertain", confidence: 57, freq: 279, db: 66, temp: 34.2, battery: 41, rssi: -74, lastSeen: "1m" },
+  { id: "H4", name: "Hive 04 · Ridge", device: "esp32-d4a8", status: "offline", confidence: 0, freq: 0, db: 0, temp: 0, battery: 0, rssi: 0, lastSeen: "3h" },
   { id: "H5", name: "Hive 05 · Riverbank", device: "esp32-e551", status: "queenright", confidence: 97, freq: 241, db: 60, temp: 34.9, battery: 78, rssi: -61, lastSeen: "5s" },
   { id: "H6", name: "Hive 06 · Hilltop", device: "esp32-f20b", status: "queenless", confidence: 82, freq: 325, db: 73, temp: 32.6, battery: 55, rssi: -70, lastSeen: "15s" },
 ];
@@ -33,7 +33,7 @@ const HIVES: Hive[] = [
 const STATUS = {
   queenright: { label: "Queen present", cls: "text-success bg-success/10 border-success/30" },
   queenless: { label: "Queenless", cls: "text-destructive bg-destructive/10 border-destructive/30" },
-  uncertain: { label: "Uncertain", cls: "text-warning bg-warning/10 border-warning/30" },
+  offline: { label: "Node offline", cls: "text-muted-foreground bg-muted border-border" },
 } as const;
 
 function spectrum(h: Hive) {
@@ -59,7 +59,7 @@ function Dashboard() {
   const hive = HIVES.find((h) => h.id === sel)!;
   const spec = useMemo(() => spectrum(hive).map((d) => ({ ...d, a: Math.max(0, d.a + ((tick * 7 + d.f) % 11) - 5) })), [hive, tick]);
   const hist = useMemo(() => history(hive), [hive]);
-  const counts = { queenright: HIVES.filter((h) => h.status === "queenright").length, queenless: HIVES.filter((h) => h.status === "queenless").length, uncertain: HIVES.filter((h) => h.status === "uncertain").length };
+  const counts = { queenright: HIVES.filter((h) => h.status === "queenright").length, queenless: HIVES.filter((h) => h.status === "queenless").length, offline: HIVES.filter((h) => h.status === "offline").length };
   const tip = { contentStyle: { background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--foreground)" } };
 
   return (
@@ -84,7 +84,7 @@ function Dashboard() {
           <Stat icon={<Hexagon className="size-4" />} label="Total hives" value={HIVES.length} />
           <Stat icon={<Crown className="size-4" />} label="Queen present" value={counts.queenright} tone="text-success" />
           <Stat icon={<AlertTriangle className="size-4" />} label="Queenless" value={counts.queenless} tone="text-destructive" />
-          <Stat icon={<Activity className="size-4" />} label="Uncertain" value={counts.uncertain} tone="text-warning" />
+          <Stat icon={<WifiOff className="size-4" />} label="Node offline" value={counts.offline} tone="text-muted-foreground" />
         </section>
 
         {counts.queenless > 0 && (
@@ -109,12 +109,12 @@ function Dashboard() {
                 </div>
                 <div className="mt-3 flex items-center gap-3">
                   <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div className={`h-full ${h.status === "queenright" ? "bg-success" : h.status === "queenless" ? "bg-destructive" : "bg-warning"}`} style={{ width: `${h.confidence}%` }} />
+                    <div className={`h-full ${h.status === "queenright" ? "bg-success" : h.status === "queenless" ? "bg-destructive" : "bg-muted-foreground"}`} style={{ width: `${h.confidence}%` }} />
                   </div>
                   <span className="font-mono text-xs text-muted-foreground">{h.confidence}%</span>
                 </div>
                 <div className="mt-2 flex gap-4 font-mono text-xs text-muted-foreground">
-                  <span>{h.freq} Hz</span><span>{h.db} dB</span><span>{h.temp}°C</span><span className="ml-auto">{h.lastSeen} ago</span>
+                  {h.status === "offline" ? <span>No signal from node</span> : <><span>{h.freq} Hz</span><span>{h.db} dB</span><span>{h.temp}°C</span></>}<span className="ml-auto">{h.lastSeen} ago</span>
                 </div>
               </button>
             ))}
