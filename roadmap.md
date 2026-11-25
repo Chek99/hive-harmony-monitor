@@ -1,0 +1,3 @@
+- [x] Split the dashboard into Overview, Hives, Alerts, and Devices with shared navigation.
+- [x] Preserve hive details and offline no-signal states.
+- [ ] Verify page navigation and mobile layouts.

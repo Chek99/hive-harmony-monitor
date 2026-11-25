@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Keep shared dashboard navigation in the root layout and content in separate file routes so each page has a direct URL.
+- Keep sample hive data in the browser-safe shared hive module and reuse the hive monitor for list and detail routes to preserve disconnected-node behavior.

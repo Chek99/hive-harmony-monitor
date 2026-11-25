@@ -9,6 +9,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { AlertTriangle, Cpu, Hexagon, LayoutDashboard } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -125,8 +126,26 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="min-h-screen honeycomb-bg">
+        <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="grid place-items-center size-10 rounded-lg bg-primary text-primary-foreground"><Hexagon className="size-5" /></div>
+              <div><p className="text-lg font-bold">HiveSense</p><p className="text-xs text-muted-foreground">Acoustic queen detection</p></div>
+            </Link>
+            <span className="text-xs text-muted-foreground border border-border rounded-full px-3 py-1 shrink-0">Sample data</span>
+          </div>
+          <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-4 sm:px-6 flex gap-1 overflow-x-auto">
+            {[
+              { to: "/", label: "Overview", icon: LayoutDashboard },
+              { to: "/hives", label: "Hives", icon: Hexagon },
+              { to: "/alerts", label: "Alerts", icon: AlertTriangle },
+              { to: "/devices", label: "Devices", icon: Cpu },
+            ].map(({ to, label, icon: Icon }) => <Link key={to} to={to} activeOptions={{ exact: to === "/" }} activeProps={{ className: "text-primary border-primary" }} inactiveProps={{ className: "text-muted-foreground border-transparent hover:text-foreground" }} className="flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium"><Icon className="size-4" />{label}</Link>)}
+          </nav>
+        </header>
+        <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6"><Outlet /></main>
+      </div>
     </QueryClientProvider>
   );
 }

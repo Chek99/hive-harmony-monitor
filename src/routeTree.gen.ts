@@ -10,33 +10,73 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as DevicesRouteImport } from './routes/devices'
+import { Route as HivesIndexRouteImport } from './routes/hives.index'
+import { Route as HivesHiveIdRouteImport } from './routes/hives.$hiveId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevicesRoute = DevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HivesIndexRoute = HivesIndexRouteImport.update({
+  id: '/hives/',
+  path: '/hives/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HivesHiveIdRoute = HivesHiveIdRouteImport.update({
+  id: '/hives/$hiveId',
+  path: '/hives/$hiveId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/devices': typeof DevicesRoute
+  '/hives/$hiveId': typeof HivesHiveIdRoute
+  '/hives/': typeof HivesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/devices': typeof DevicesRoute
+  '/hives/$hiveId': typeof HivesHiveIdRoute
+  '/hives': typeof HivesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/devices': typeof DevicesRoute
+  '/hives/$hiveId': typeof HivesHiveIdRoute
+  '/hives/': typeof HivesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/alerts' | '/devices' | '/hives/$hiveId' | '/hives/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/alerts' | '/devices' | '/hives/$hiveId' | '/hives'
+  id: '__root__' | '/' | '/alerts' | '/devices' | '/hives/$hiveId' | '/hives/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
+  DevicesRoute: typeof DevicesRoute
+  HivesHiveIdRoute: typeof HivesHiveIdRoute
+  HivesIndexRoute: typeof HivesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +88,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/devices': {
+      id: '/devices'
+      path: '/devices'
+      fullPath: '/devices'
+      preLoaderRoute: typeof DevicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hives/': {
+      id: '/hives/'
+      path: '/hives'
+      fullPath: '/hives/'
+      preLoaderRoute: typeof HivesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hives/$hiveId': {
+      id: '/hives/$hiveId'
+      path: '/hives/$hiveId'
+      fullPath: '/hives/$hiveId'
+      preLoaderRoute: typeof HivesHiveIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
+  DevicesRoute: DevicesRoute,
+  HivesHiveIdRoute: HivesHiveIdRoute,
+  HivesIndexRoute: HivesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
